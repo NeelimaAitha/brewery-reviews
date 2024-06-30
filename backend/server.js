@@ -12,7 +12,7 @@ const breweryRoutes = require('./routes/breweryRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 3008;
+const PORT = process.env.PORT || 3009;
 
 // Middleware
 app.use(cors());
@@ -24,6 +24,10 @@ app.use('/api/reviews', reviewRoutes);
 // Routes
 
 // Signup route
+app.get('/', (req, res) => {
+  res.send('Server is running');
+});
+
 app.post('/api/signup', async (req, res) => {
   const { username, password } = req.body;
 
@@ -78,25 +82,22 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Search breweries route
-app.get('/api/breweries', async (req, res) => {
+app.get('/api/search', async (req, res) => {
   const { by_city, by_name, by_type } = req.query;
+  let query = `https://api.openbrewerydb.org/breweries?`;
+
+  if (by_city) query += `by_city=${by_city}&`;
+  if (by_name) query += `by_name=${by_name}&`;
+  if (by_type) query += `by_type=${by_type}&`;
 
   try {
-    let breweries;
-    if (by_city) {
-      breweries = await Brewery.findAll({ where: { city: by_city } });
-    } else if (by_name) {
-      breweries = await Brewery.findAll({ where: { name: by_name } });
-    } else if (by_type) {
-      breweries = await Brewery.findAll({ where: { type: by_type } });
-    } else {
-      breweries = await Brewery.findAll();
-    }
-
-    res.status(200).json(breweries);
+    const response = await axios.get(query);
+    res.json(response.data);
   } catch (error) {
-    console.error('Error in fetching breweries:', error);
-    res.status(500).json({ message: 'Failed to fetch breweries' });
+    console.error('Search error:', error);
+    res.status(500).json({
+      message: 'Search failed. Please try again later.',
+    });
   }
 });
 

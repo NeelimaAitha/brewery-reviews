@@ -8,7 +8,7 @@ const Brewery = ({ breweryId }) => {
     useEffect(() => {
         const fetchBrewery = async () => {
             try {
-                const response = await axios.get(`/api/breweries/${breweryId}`);
+                const response = await axios.get(`http://localhost:3009/api/breweries/${breweryId}`);
                 setBrewery(response.data);
             } catch (error) {
                 console.error('Fetch Brewery error:', error);

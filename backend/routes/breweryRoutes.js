@@ -1,32 +1,62 @@
+// In routes/breweryRoutes.js
+
 const express = require('express');
 const router = express.Router();
-const { Brewery } = require('../models');
+const { Brewery, Review } = require('../models'); // Import your models
 
-// GET /api/breweries
-router.get('/api/breweries', async (req, res) => {
-  const { by_city, by_name, by_type } = req.query;
-  try {
-    let whereClause = {};
-    if (by_city) {
-      whereClause.city = by_city;
+// Controller method to get all breweries
+const getBreweries = async (req, res) => {
+    try {
+        const breweries = await Brewery.findAll();
+        res.json(breweries);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
     }
-    if (by_name) {
-      whereClause.name = by_name;
-    }
-    if (by_type) {
-      whereClause.type = by_type;
-    }
+};
 
-    const breweries = await Brewery.findAll({
-      where: whereClause,
-      attributes: ['id', 'name', 'address', 'phone', 'website_url', 'rating', 'state', 'city', 'createdAt', 'updatedAt']
-    });
+// Controller method to get a specific brewery by ID
+const getBreweryById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const brewery = await Brewery.findByPk(id);
+        if (!brewery) {
+            return res.status(404).json({ message: 'Brewery not found' });
+        }
+        res.json(brewery);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
 
-    res.json(breweries);
-  } catch (error) {
-    console.error('Error fetching breweries:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+// Controller method to add a review for a brewery
+const addReview = async (req, res) => {
+    const { id } = req.params;
+    const { rating, description } = req.body;
+
+    try {
+        const brewery = await Brewery.findByPk(id);
+        if (!brewery) {
+            return res.status(404).json({ message: 'Brewery not found' });
+        }
+
+        const newReview = await Review.create({
+            rating,
+            description,
+            breweryId: id // Associate the review with the brewery
+        });
+
+        res.status(201).json(newReview);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// Define routes
+router.get('/breweries', getBreweries); // Route to get all breweries
+router.get('/breweries/:id', getBreweryById); // Route to get a specific brewery by ID
+router.post('/breweries/:id/reviews', addReview); // Route to add a review for a brewery
 
 module.exports = router;
