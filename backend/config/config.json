@@ -1,0 +1,28 @@
+{
+  "development": {
+    "username": "neelu",
+    "password": "1234",
+    "database": "brewery_review_systems",
+    "host": "localhost",
+    "dialect": "mysql",
+    "port": "3306" 
+  },
+  "test": {
+    "username": "neelu",
+    "password": "1234",
+    "database": "brewery_review_systems",
+    "host": "localhost",
+    "dialect": "mysql",
+    "port": "3306"
+  },
+  "production": {
+    "username": "neelu",
+    "password": "1234",
+    "database": "brewery_review_systems",
+    "host": "localhost",
+    "dialect": "mysql",
+    "port": "3306"
+  }
+}
+
+
